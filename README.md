@@ -36,14 +36,15 @@ Fork used in the demo: [detectron2-ml-dive](https://github.com/shinysonik/detect
 🚧 In active development during the hackathon (September 25–27, 2026).
 
 ## Repository structure
+
+```
 ml-dive/
-├── app/ # Streamlit demo
-├── prompts/ # Prompts for IBM Bob 2.0
-├── logs/ # Synthetic training logs with anomalies
-├── docs/ # Notes, screenshots, drafts
+├── app/          # Streamlit demo
+├── prompts/      # Prompts for IBM Bob 2.0
+├── logs/         # Synthetic training logs with anomalies
+├── docs/         # Notes, screenshots, drafts
 └── README.md
-
-
+```
 ## Team
 
 - **ML / CV / IBM Bob integration** — [@shinysonik](https://github.com/shinysonik)
