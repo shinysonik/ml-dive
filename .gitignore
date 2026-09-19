@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.env
+.pytest_cache/
+
+# Данные и веса моделей (тяжёлые — не коммитим)
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.h5
+*.safetensors
+
+# Логи (кроме примеров и скриптов)
+logs/*.log
+logs/*.csv
+logs/*.json
+!logs/generate_logs.py
+!logs/examples/
+
+# Данные
+data/
+datasets/
+outputs/
+checkpoints/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Секреты
+*.key
+*.pem
+secrets.toml
