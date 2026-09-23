@@ -2,7 +2,7 @@
 
 ## Scenario
 
-A training run has finished. The metrics look wrong but the engineer does not know where. She has `logs/train_log.csv`, the run config `logs/run_config.yaml`, and a Detectron2 fork. She needs a triage report: what went wrong, when, and what to change.
+A training run has finished. The metrics look wrong but the engineer does not know where. They have `logs/train_log.csv`, the run config `logs/run_config.yaml`, and a Detectron2 fork. They need a triage report: what went wrong, when, and what to change.
 
 Log format: `iteration, epoch, train_loss, val_loss, lr, timestamp`. Expected: 5000 rows, 100 epochs, 50 iterations per epoch.
 
