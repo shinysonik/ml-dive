@@ -1,0 +1,41 @@
+{
+  "index_base": 1,
+  "anomalies": [
+    {
+      "name": "loss spike",
+      "detector": "B",
+      "severity": "low",
+      "epoch_start": 21,
+      "epoch_end": 21,
+      "iteration_start": 1025,
+      "iteration_end": 1026
+    },
+    {
+      "name": "overfitting",
+      "detector": "C",
+      "severity": "medium",
+      "epoch_start": 41,
+      "epoch_end": 60,
+      "iteration_start": 2001,
+      "iteration_end": 3000
+    },
+    {
+      "name": "non-finite loss",
+      "detector": "A",
+      "severity": "high",
+      "epoch_start": 61,
+      "epoch_end": 63,
+      "iteration_start": 3001,
+      "iteration_end": 3150
+    },
+    {
+      "name": "stalled lr",
+      "detector": "D",
+      "severity": "medium",
+      "epoch_start": 81,
+      "epoch_end": 100,
+      "iteration_start": 4001,
+      "iteration_end": 5000
+    }
+  ]
+}

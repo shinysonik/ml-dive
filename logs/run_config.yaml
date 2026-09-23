@@ -1,0 +1,16 @@
+# synthetic run behind train_log.csv
+MODEL: {WEIGHTS: "detectron2://ImageNetPretrained/MSRA/R-50.pkl"}
+DATASETS: {TRAIN: ["my_train"], TEST: ["my_val"]}
+TEST: {EVAL_PERIOD: 50}
+SOLVER:
+  BASE_LR: 0.001
+  STEPS: [951, 1951, 2951, 3951]
+  GAMMA: 0.5
+  MAX_ITER: 5000
+  WARMUP_ITERS: 0
+  WARMUP_FACTOR: 0.001
+  LR_SCHEDULER_NAME: "WarmupMultiStepLR"
+  IMS_PER_BATCH: 16
+  WEIGHT_DECAY: 0.0001
+  CLIP_GRADIENTS: {ENABLED: False, CLIP_TYPE: "value", CLIP_VALUE: 1.0}
+  AMP: {ENABLED: True}
