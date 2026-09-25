@@ -1,0 +1,85 @@
+[
+  {
+    "id": "A1",
+    "type": "nan_loss",
+    "detector": "A",
+    "severity": "high",
+    "epoch_start": 61,
+    "epoch_end": 63,
+    "iteration_start": 3001,
+    "iteration_end": 3150,
+    "evidence": {
+      "first_iteration": 3001,
+      "row_count": 150,
+      "last_finite_iteration": 3000,
+      "lr_at_first_nonfinite": "1.2500e-04",
+      "pre_burst_slope": "-2.3770e-06"
+    },
+    "finding": "train_loss and val_loss are non-finite for iterations 3001-3150 (epochs 61-63).",
+    "suggested_fix": null,
+    "fix_status": "not applicable \u2014 reference detector does not propose fixes",
+    "source_report": "reference_detectors.py"
+  },
+  {
+    "id": "B1",
+    "type": "loss_spike",
+    "detector": "B",
+    "severity": "low",
+    "epoch_start": 21,
+    "epoch_end": 21,
+    "iteration_start": 1025,
+    "iteration_end": 1026,
+    "evidence": {
+      "peak_iteration": 1025,
+      "peak_value": "8.4361",
+      "peak_ratio": "7.8820",
+      "duration_iterations": 2,
+      "lr_at_peak": "5.0000e-04",
+      "recovered_at": "1027"
+    },
+    "finding": "train_loss spikes to 8.4361 at iteration 1025 (7.8820x the trailing median).",
+    "suggested_fix": null,
+    "fix_status": "not applicable \u2014 reference detector does not propose fixes",
+    "source_report": "reference_detectors.py"
+  },
+  {
+    "id": "C1",
+    "type": "overfitting",
+    "detector": "C",
+    "severity": "medium",
+    "epoch_start": 40,
+    "epoch_end": 60,
+    "iteration_start": 1951,
+    "iteration_end": 3000,
+    "evidence": {
+      "train_slope": "-1.6682e-02",
+      "val_slope": "3.2401e-02",
+      "gap_start": "0.2083",
+      "gap_end": "1.1880"
+    },
+    "finding": "train_loss falls while val_loss rises over epochs 40-60; gap widens from 0.2083 to 1.1880.",
+    "suggested_fix": null,
+    "fix_status": "not applicable \u2014 reference detector does not propose fixes",
+    "source_report": "reference_detectors.py"
+  },
+  {
+    "id": "D1",
+    "type": "stalled_lr",
+    "detector": "D",
+    "severity": "medium",
+    "epoch_start": 80,
+    "epoch_end": 100,
+    "iteration_start": 3951,
+    "iteration_end": 5000,
+    "evidence": {
+      "lr_value": "6.2500e-05",
+      "lr_fraction_of_max": "0.0625",
+      "train_loss_change": "0.0009",
+      "val_loss_change": "0.0014"
+    },
+    "finding": "lr constant at 6.2500e-05 (0.0625 of max) over epochs 80-100; train_loss changes by only 0.0009.",
+    "suggested_fix": null,
+    "fix_status": "not applicable \u2014 reference detector does not propose fixes",
+    "source_report": "reference_detectors.py"
+  }
+]

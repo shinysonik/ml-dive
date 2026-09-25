@@ -1,0 +1,35 @@
+[09/25 10:00:00] detectron2 INFO: Started from config-file: configs/coco_R_50_FPN_1x.yaml
+[09/25 10:00:01] detectron2 INFO: Command line arguments: Namespace(config_file='configs/coco_R_50_FPN_1x.yaml', opts=[])
+[09/25 10:00:02] d2.data.build INFO: Training data: 118287 instances
+[09/25 10:00:02] d2.data.build INFO: Validation data: 5000 instances
+[09/25 10:00:03] d2.checkpoints INFO: Loading checkpoint from: detectron2://ImageNetPretrained/MSRA/R-50.pkl
+[09/25 10:00:09] fvcore.common.checkpoint INFO: Missing some weights: proposal_generator.anchor_generator.cell_anchors
+[09/25 10:00:10] d2.engine.train_loop INFO: Starting training from iteration 0
+[09/25 10:00:11] d2.engine.train_loop INFO: max_iter: 5000 steps: [951, 1951, 2951, 3951] gamma: 0.5 amp: enabled
+[09/25 10:03:12] d2.utils.events INFO: eta: 2:43:28 iter: 96/5000 total_loss: 1.8012 grad_norm: 1.9200 lr: 1.0000e-03 data_time: 0.043
+[09/25 10:03:14] d2.engine.train_loop ERROR: Exception in train_step: RuntimeError: CUDA out of memory. Tried to allocate 512.00 MiB (GPU 0; 8.00 GiB total capacity)
+[09/25 10:03:14] d2.engine.train_loop ERROR: Traceback (most recent call last):
+  File "/envs/cv/lib/python3.9/site-packages/detectron2/engine/train_loop.py", line 155, in train
+    loss_dict = self.model(data)
+  File "/envs/cv/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+RuntimeError: CUDA out of memory. Tried to allocate 512.00 MiB (GPU 0; 8.00 GiB total capacity; 7.31 GiB already allocated)
+[09/25 10:03:15] d2.engine.hooks INFO: Triggering empty_cuda_cache
+[09/25 10:03:16] d2.engine.train_loop WARNING: Retrying with reduced batch size: SOLVER.IMS_PER_BATCH 16 -> 8
+[09/25 10:03:16] d2.engine.train_loop INFO: resuming from iteration 97 (last checkpoint)
+[09/25 10:34:10] d2.utils.events INFO: eta: 2:12:30 iter: 1025/5000 total_loss: 8.4361 grad_norm: 12.4022 lr: 5.0000e-04 data_time: 0.041
+[09/25 10:34:10] d2.utils.events WARNING: train_loss jumped 7.8820x the trailing median at iter 1025 — transient spike, recovered by iter 1027
+[09/25 10:34:14] d2.evaluation.coco_evaluation INFO: Validation results: bbox=0.412 AP50=0.601
+[09/25 11:05:02] d2.utils.events INFO: eta: 1:41:42 iter: 1951/5000 total_loss: 1.1004 grad_norm: 1.1044 lr: 2.5000e-04 data_time: 0.039
+[09/25 11:40:02] d2.utils.events INFO: eta: 1:06:42 iter: 3001/5000 total_loss: inf lr: 1.2500e-04 data_time: 0.044
+[09/25 11:40:02] d2.engine.train_loop ERROR: Metric NaN detected for 'loss' at iteration 3001. First non-finite value is inf; lr is 1.2500e-04.
+[09/25 11:40:42] d2.utils.events INFO: eta: 1:06:02 iter: 3021/5000 total_loss: nan lr: 1.2500e-04 data_time: 0.044
+[09/25 11:45:00] d2.utils.events INFO: eta: 1:01:42 iter: 3150/5000 total_loss: nan lr: 1.2500e-04 data_time: 0.045
+[09/25 11:45:02] d2.utils.events INFO: eta: 1:01:40 iter: 3151/5000 total_loss: 1.0244 grad_norm: 0.8812 lr: 1.2500e-04 data_time: 0.042
+[09/25 11:45:02] d2.engine.train_loop INFO: Loss recovered at iteration 3151 — non-finite window closed (iterations 3001-3150, 150 rows)
+[09/25 12:11:42] d2.utils.events INFO: eta: 0:35:00 iter: 3951/5000 total_loss: 0.7412 grad_norm: 0.6400 lr: 6.2500e-05 data_time: 0.040
+[09/25 12:13:22] d2.utils.events WARNING: lr unchanged at 6.2500e-05 since iter 3951 and total_loss has shown no trend since iter 4001 — schedule may have stalled
+[09/25 12:46:40] d2.utils.events INFO: eta: 0:00:00 iter: 5000/5000 total_loss: 0.7398 grad_norm: 0.6100 lr: 6.2500e-05 data_time: 0.041
+[09/25 12:46:41] d2.evaluation.coco_evaluation INFO: Validation results: bbox=0.471 AP50=0.688
+[09/25 12:46:42] d2.engine.hooks INFO: Training took 2:46:32 (5000 iterations)
+[09/25 12:46:42] d2.engine.train_loop INFO: Training completed normally at iteration 5000

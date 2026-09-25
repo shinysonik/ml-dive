@@ -20,6 +20,13 @@ env/
 logs/*.log
 logs/*.csv
 logs/*.json
+
+# Demo payload — shipped on purpose. A fresh clone must be able to demo with
+# nothing else on disk, and detectron2_run.log has no generator at all.
+!logs/train_log.csv
+!logs/detectron2_run.log
+!logs/reference_anomalies.json
+
 !logs/generate_logs.py
 !logs/examples/
 

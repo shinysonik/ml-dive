@@ -63,18 +63,21 @@ Then drop `logs/train_log.csv` + `logs/detectron2_run.log` into the
 **ML Training Log Debugger** mode, and attach
 `logs/reference_anomalies.json` as the diagnosis file.
 
-> **Note on demo data:** `logs/*.log`, `logs/*.csv` and `logs/*.json` are
-> gitignored on purpose — the app is *upload-only* and never reads from disk,
-> so nothing here needs to be on the server. Rebuild them locally with:
+> **Note on demo data:** three files ship with the repo on purpose —
+> `logs/train_log.csv`, `logs/detectron2_run.log` and
+> `logs/reference_anomalies.json` — so a fresh clone can be demoed without
+> regenerating anything. (`.gitignore` still blocks everything else matching
+> `logs/*.log|*.csv|*.json`.)
 >
-> - `python logs/generate_logs.py` → `logs/train_log.csv`
+> To rebuild them anyway:
+>
+> - `python logs/generate_logs.py` → `logs/train_log.csv`, `logs/run_config.yaml`,
+>   `docs/ground_truth_debugging.json`
 > - `python logs/reference_detectors.py --json` → `logs/reference_anomalies.json`
-> - `logs/detectron2_run.log` is hand-maintained and is **not** regenerated
->   (no script writes it)
+> - `logs/detectron2_run.log` — hand-maintained, **no script produces it**
 >
-> `generate_logs.py` also writes `logs/run_config.yaml` and
-> `docs/ground_truth_debugging.json`; neither is gitignored, since the rule
-> only covers `logs/`.
+> None of this is needed at runtime: the app is *upload-only* and never reads
+> from disk.
 
 ## Deploy (Streamlit Community Cloud)
 
