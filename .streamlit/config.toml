@@ -1,0 +1,11 @@
+# ML-Dive — sleek dark-mode theme
+[theme]
+base = "dark"
+primaryColor = "#5B8DEF"
+backgroundColor = "#0B0E14"
+secondaryBackgroundColor = "#151A23"
+textColor = "#E6E9F0"
+font = "sans serif"
+
+[browser]
+gatherUsageStats = false

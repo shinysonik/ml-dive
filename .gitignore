@@ -28,6 +28,7 @@ data/
 datasets/
 outputs/
 checkpoints/
+demo_repo.zip
 
 # IDE / OS
 .vscode/

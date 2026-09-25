@@ -1,0 +1,7 @@
+streamlit>=1.37
+pandas>=2.0
+# Both are imported directly at module level in ml_dive.py (altair, numpy), so
+# both must be declared — relying on them arriving transitively (altair via
+# streamlit, numpy via pandas) breaks the deploy if a dependency resolves away.
+numpy>=1.24
+altair>=5.0

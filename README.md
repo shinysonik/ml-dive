@@ -39,12 +39,70 @@ Fork used in the demo: [detectron2-ml-dive](https://github.com/shinysonik/detect
 
 ```
 ml-dive/
-├── app/          # Streamlit demo
-├── prompts/      # Prompts for IBM Bob 2.0
-├── logs/         # Synthetic training logs with anomalies
-├── docs/         # Notes, screenshots, drafts
+├── ml_dive.py         # Streamlit app — both modes, single file
+├── requirements.txt   # runtime deps (installed by Streamlit Cloud)
+├── .streamlit/        # dark theme + config
+├── tests/             # verification suite — run before committing
+├── app/               # placeholder for the packaged demo
+├── prompts/           # Prompts for IBM Bob 2.0
+├── logs/              # Synthetic training data + reference detector & scorer
+├── docs/              # anomalies schema, ground truth
 └── README.md
 ```
+
+## Run locally
+
+```powershell
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+streamlit run ml_dive.py
+```
+
+Then drop `logs/train_log.csv` + `logs/detectron2_run.log` into the
+**ML Training Log Debugger** mode, and attach
+`logs/reference_anomalies.json` as the diagnosis file.
+
+> **Note on demo data:** `logs/*.log`, `logs/*.csv` and `logs/*.json` are
+> gitignored on purpose — the app is *upload-only* and never reads from disk,
+> so nothing here needs to be on the server. Rebuild them locally with:
+>
+> - `python logs/generate_logs.py` → `logs/train_log.csv`
+> - `python logs/reference_detectors.py --json` → `logs/reference_anomalies.json`
+> - `logs/detectron2_run.log` is hand-maintained and is **not** regenerated
+>   (no script writes it)
+>
+> `generate_logs.py` also writes `logs/run_config.yaml` and
+> `docs/ground_truth_debugging.json`; neither is gitignored, since the rule
+> only covers `logs/`.
+
+## Deploy (Streamlit Community Cloud)
+
+1. Push this repository to GitHub.
+2. Create an app at [share.streamlit.io](https://share.streamlit.io) pointing at
+   this repo and branch.
+3. **Set the file path to `ml_dive.py`.** Streamlit's default is
+   `streamlit_app.py`, which this project does not use — leaving the default
+   makes the deploy "succeed" with no app to show.
+
+`requirements.txt` must list every package imported directly by `ml_dive.py`
+(`streamlit`, `pandas`, `numpy`, `altair`). Cloud installs from that file
+alone, so an undeclared import breaks the deploy rather than the local run.
+
+## Tests
+
+`tests/` boots the real app headlessly (Streamlit's `AppTest`), uploads the
+actual demo files, and asserts specific behaviour. **Run it before committing:**
+
+```powershell
+venv\Scripts\python tests\run_all.py
+```
+
+133 checks across five scripts: log ↔ anomaly cross-referencing by position,
+the non-finite audit total, text-log/CSV agreement, the diagnosis upload flow,
+every `fix_status` badge state, and every fix listed above. Exit code is `0`
+only when all five pass.
+
 ## Team
 
 - **ML / CV / IBM Bob integration** — [@shinysonik](https://github.com/shinysonik)

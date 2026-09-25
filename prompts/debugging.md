@@ -91,10 +91,10 @@ Write analysis/anomalies.json: a JSON list, one item per detected anomaly, match
 
 Also write analysis/anomalies.md: one table sorted by severity (high, medium, low), ties by first epoch. Columns: id, type, detector, epoch range, iteration range, evidence (rendered as key=value, comma separated), severity. Then a section "Relations": pairs of anomaly ids that overlap or are adjacent in epochs, each labelled "hypothesis" with the numbers that motivate it. If two reports contradict each other, say so; do not resolve it silently.
 
-Check before finishing: every item in anomalies.json has all 11 keys from docs/anomalies_schema.md; anomalies.md and anomalies.json list the same anomalies in the same order.
+Check before finishing: every item in anomalies.json has all 13 keys from docs/anomalies_schema.md; anomalies.md and anomalies.json list the same anomalies in the same order.
 ```
 
-Checkpoint: `analysis/anomalies.json` validates against the 11 keys; `analysis/anomalies.md` table matches it row for row.
+Checkpoint: `analysis/anomalies.json` validates against the 13 keys; `analysis/anomalies.md` table matches it row for row.
 
 ## Step 4 - Agent mode: fixes grounded in the repository
 
@@ -107,7 +107,7 @@ For each item in analysis/anomalies.json, fill in:
 - finding: rewrite as one to two full sentences using the evidence values, referencing file:line where the finding implicates specific code (for example, which config key governs the behavior).
 - suggested_fix: file and config key or code location with file:line, current value from logs/run_config.yaml, proposed value, and why. At most two changes per anomaly, most impactful first.
 - fix_status: "confirmed in repo (file:line)" only if every file:line in suggested_fix was opened this session, otherwise "hypothesis — verify in repo".
-Write the updated list back to analysis/anomalies.json, same order, same ids, all 11 keys still present. Also update analysis/anomalies.md's evidence column if any numbers changed; do not change severities.
+Write the updated list back to analysis/anomalies.json, same order, same ids, all 13 keys still present. Also update analysis/anomalies.md's evidence column if any numbers changed; do not change severities.
 
 Also answer, with file:line: what does the trainer do when the loss becomes non-finite?
 ```
