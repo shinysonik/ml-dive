@@ -49,7 +49,7 @@ ml-dive/
 ├── docs/              # anomalies schema, ground truth
 └── README.md
 ```
-
+Data sources and compliance notes: see docs/DATA_SOURCES.md
 ## Run locally
 
 ```powershell
