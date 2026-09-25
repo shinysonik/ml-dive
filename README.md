@@ -59,8 +59,12 @@ pip install -r requirements.txt
 streamlit run ml_dive.py
 ```
 
-Then drop `logs/train_log.csv` + `logs/detectron2_run.log` into the
-**ML Training Log Debugger** mode, and attach
+For **CV Repository Onboarding**, drop `demo_repo.zip` into the same
+Structural intake box — it is a 7-file toy project (`Tiny-Detectron`) built
+for this demo, so a fresh clone can exercise that mode too.
+
+For **ML Training Log Debugger**, drop `logs/train_log.csv` +
+`logs/detectron2_run.log` into the **Structural intake** box, and attach
 `logs/reference_anomalies.json` as the diagnosis file.
 
 > **Note on demo data:** three files ship with the repo on purpose —
