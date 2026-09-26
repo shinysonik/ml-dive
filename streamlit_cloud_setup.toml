@@ -1,0 +1,15 @@
+# ML-Dive — Streamlit secrets template
+# ─────────────────────────────────────────────────────────────────────────────
+# HOW TO USE
+#   Local:          Copy this file to .streamlit/secrets.toml, fill in your key.
+#                   secrets.toml is git-ignored and will never be committed.
+#   Streamlit Cloud: Go to your app → Settings → Secrets, paste the block there.
+#
+# NEVER commit secrets.toml — it is blocked by .gitignore on purpose.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Bob Shell API key — required for the "Run with Bob" button (local only).
+# Create one at https://bob.ibm.com → API keys → New key → Scope: General.
+# On Streamlit Cloud this key is not needed: the Bob button is hidden because
+# Bob Shell cannot be installed in the Cloud environment.
+BOBSHELL_API_KEY = "your-api-key-here"

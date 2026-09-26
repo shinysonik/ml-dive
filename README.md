@@ -39,14 +39,17 @@ Fork used in the demo: [detectron2-ml-dive](https://github.com/shinysonik/detect
 
 ```
 ml-dive/
-├── ml_dive.py         # Streamlit app — both modes, single file
-├── requirements.txt   # runtime deps (installed by Streamlit Cloud)
-├── .streamlit/        # dark theme + config
-├── tests/             # verification suite — run before committing
-├── app/               # placeholder for the packaged demo
-├── prompts/           # Prompts for IBM Bob 2.0
-├── logs/              # Synthetic training data + reference detector & scorer
-├── docs/              # anomalies schema, ground truth
+├── ml_dive.py                     # Streamlit app — both modes, single file
+├── bob_runner.py                  # Bob Shell integration (local only)
+├── edge_cases.py                  # error classes + validators + UI helpers
+├── requirements.txt               # runtime deps (installed by Streamlit Cloud)
+├── streamlit_cloud_setup.toml     # secrets template — copy to .streamlit/secrets.toml
+├── .streamlit/                    # dark theme + config
+├── tests/                         # verification suite — run before committing
+├── app/                           # placeholder for the packaged demo
+├── prompts/                       # Prompts for IBM Bob 2.0 (manual + auto)
+├── logs/                          # Synthetic training data + reference detector & scorer
+├── docs/                          # anomalies schema, ground truth
 └── README.md
 ```
 Data sources and compliance notes: see docs/DATA_SOURCES.md
@@ -82,6 +85,28 @@ For **ML Training Log Debugger**, drop `logs/train_log.csv` +
 >
 > None of this is needed at runtime: the app is *upload-only* and never reads
 > from disk.
+
+## Credentials
+
+ML-Dive's "Run with Bob" button calls Bob Shell as a subprocess and requires a Bob API key. This feature only works **locally** — it is automatically hidden on Streamlit Cloud (see note below).
+
+### Local setup
+
+1. Create an API key at [bob.ibm.com](https://bob.ibm.com) → API keys → New key → **Scope: General**.
+2. Set it in your terminal before running the app:
+
+```powershell
+$env:BOBSHELL_API_KEY = "your-api-key-here"
+streamlit run ml_dive.py
+```
+
+Or copy [`streamlit_cloud_setup.toml`](streamlit_cloud_setup.toml) to `.streamlit/secrets.toml` and fill in your key — Streamlit will load it automatically.
+
+### Streamlit Cloud
+
+The Bob button is hidden on Cloud because Bob Shell cannot be installed there and the analysis takes up to 15 minutes (well beyond Cloud's ~60s connection timeout). No key is needed for the Cloud deployment — judges use the manual upload workflow instead.
+
+---
 
 ## Deploy (Streamlit Community Cloud)
 
