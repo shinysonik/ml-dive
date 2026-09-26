@@ -115,12 +115,13 @@ def _run_bob_in_dir(workspace: Path, prompt: str, timeout_seconds: int) -> None:
     api_key = get_bob_api_key()
 
     env = os.environ.copy()
-    # Bob Shell reads BOBSHELL_API_KEY for API key auth (documented env var name).
-    env["BOBSHELL_API_KEY"] = api_key
+    # Bob Shell 2.0.5 reads BOB_API_KEY. Setting both would cause an error if
+    # they differ, so we normalise to BOB_API_KEY and remove the legacy name.
+    env["BOB_API_KEY"] = api_key
+    env.pop("BOBSHELL_API_KEY", None)
 
     cmd = [
         _BOB_CMD,
-        "--auth-method", "api-key",
         "-p", prompt,
         "--yolo",
         "--accept-license",
