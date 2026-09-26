@@ -120,9 +120,14 @@ def _run_bob_in_dir(workspace: Path, prompt: str, timeout_seconds: int) -> None:
     env["BOB_API_KEY"] = api_key
     env.pop("BOBSHELL_API_KEY", None)
 
+    # Write the full prompt to a file to avoid Windows command-line length
+    # limits (~32 KB). Pass a short -p instruction that tells Bob to read it.
+    prompt_file = workspace / _PROMPT_FILENAME
+    prompt_file.write_text(prompt, encoding="utf-8")
+
     cmd = [
         _BOB_CMD,
-        "-p", prompt,
+        "-p", f"Read and execute all instructions in {_PROMPT_FILENAME} verbatim.",
         "--yolo",
         "--accept-license",
     ]
