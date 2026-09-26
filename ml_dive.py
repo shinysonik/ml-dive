@@ -392,7 +392,7 @@ def _zone_to_x(zone: dict, df: pd.DataFrame, xcol: str) -> tuple[float, float] |
     # Priority 2-3: epoch range
     se = zone.get("epoch_start")
     ee = zone.get("epoch_end")
-    if se is None:
+    if se is None or ee is None:
         return None
 
     if xcol.lower() == "epoch":
@@ -714,7 +714,7 @@ def tail_text(raw: bytes, n: int = TAIL_LINES) -> str:
 
 def pick_by_name(files: list, name: str):
     """Fetch the UploadedFile matching `name` from a list."""
-    return next(f for f in files if f.name == name)
+    return next((f for f in files if f.name == name), None)
 
 
 def render_markdown_report(title: str, raw: bytes, *, expanded: bool = True) -> None:
@@ -947,6 +947,8 @@ def render_onboarding(intake: Intake) -> None:
             st.markdown("**🔎 Code inspection**")
             pick = st.selectbox("File", [f.name for f in intake.code], key="ob_code_pick")
             chosen = pick_by_name(intake.code, pick)
+            if chosen is None:
+                return
             raw = chosen.getvalue()[:MAX_PREVIEW_CHARS].decode("utf-8", errors="replace")
             lang = SYNTAX_MAP.get(PurePosixPath(pick).suffix.lstrip("."), PurePosixPath(pick).suffix.lstrip("."))
             st.code(raw, language=lang)
@@ -995,6 +997,8 @@ def render_logs_panel(
 
     pick = st.selectbox("Log file", [f.name for f in intake.logs], key="dbg_log_pick")
     chosen = pick_by_name(intake.logs, pick)
+    if chosen is None:
+        return
     counts, findings = scan_log(pick, chosen.size, chosen.getvalue())
 
     # Verdict
@@ -1162,6 +1166,8 @@ def render_tables_panel(
 
     pick = st.selectbox("Table", [f.name for f in intake.data], key="dbg_csv_pick")
     chosen = pick_by_name(intake.data, pick)
+    if chosen is None:
+        return
     df = load_table(pick, chosen.size, chosen.getvalue())
 
     st.caption(f"{df.shape[0]:,} rows × {df.shape[1]} columns (first 50k rows parsed)")
