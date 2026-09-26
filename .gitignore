@@ -152,6 +152,7 @@ logs/*.json
 !logs/reference_anomalies.json
 !logs/generate_logs.py
 !logs/examples/
+!logs/test_reasoning_anomalies.json
 
 # Data and outputs
 data/

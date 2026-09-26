@@ -1,0 +1,111 @@
+[
+  {
+    "id": "A1",
+    "type": "nan_loss",
+    "detector": "A",
+    "severity": "high",
+    "epoch_start": 61,
+    "epoch_end": 63,
+    "iteration_start": 3001,
+    "iteration_end": 3150,
+    "evidence": {
+      "first_iteration": 3001,
+      "row_count": 150,
+      "last_finite_iteration": 3000,
+      "lr_at_first_nonfinite": "1.2500e-04",
+      "pre_burst_slope": "-2.3770e-06"
+    },
+    "finding": "train_loss and val_loss are non-finite for iterations 3001-3150 (epochs 61-63).",
+    "reasoning": [
+      "read logs/train_log.csv -> found 150 rows where train_loss is NaN starting at iteration 3001",
+      "checked lr schedule in run_config.yaml -> LR warmup ends at iteration 3000 (epoch 60)",
+      "cross-referenced loss curve -> last finite train_loss was at iteration 3000 (0.2841)",
+      "ruled out OOM: no CUDA out-of-memory messages in logs/detectron2_run.log in this window",
+      "conclusion: NaN loss coincides exactly with LR warmup end, suggesting instability at LR transition"
+    ],
+    "suggested_fix": "Add gradient clipping (SOLVER.CLIP_GRADIENTS.ENABLED = True, MAX_NORM = 1.0) and reduce BASE_LR by 50%.",
+    "fix_status": "hypothesis — verify in repo",
+    "source_report": "detect_a_nonfinite.py"
+  },
+  {
+    "id": "B1",
+    "type": "loss_spike",
+    "detector": "B",
+    "severity": "low",
+    "epoch_start": 21,
+    "epoch_end": 21,
+    "iteration_start": 1025,
+    "iteration_end": 1026,
+    "evidence": {
+      "peak_iteration": 1025,
+      "peak_value": "8.4361",
+      "peak_ratio": "7.8820",
+      "duration_iterations": 2,
+      "lr_at_peak": "5.0000e-04",
+      "recovered_at": "1027"
+    },
+    "finding": "train_loss spikes to 8.4361 at iteration 1025 (7.88x trailing median), recovering by iteration 1027.",
+    "reasoning": [
+      "read logs/train_log.csv -> computed trailing median of 10 previous rows at iteration 1025 = 1.0703",
+      "ratio 8.4361 / 1.0703 = 7.88 exceeds threshold of 3.0 -> flagged as spike",
+      "checked recovery: train_loss at iteration 1027 = 1.0821 which is <= 1.5x trailing median",
+      "severity = low because spike fully recovered within 2 iterations"
+    ],
+    "suggested_fix": "No action needed — spike recovered immediately. Monitor for recurrence.",
+    "fix_status": "hypothesis — verify in repo",
+    "source_report": "detect_b_spikes.py"
+  },
+  {
+    "id": "C1",
+    "type": "overfitting",
+    "detector": "C",
+    "severity": "medium",
+    "epoch_start": 40,
+    "epoch_end": 60,
+    "iteration_start": 1951,
+    "iteration_end": 3000,
+    "evidence": {
+      "train_slope": "-1.6682e-02",
+      "val_slope": "3.2401e-02",
+      "gap_start": "0.2083",
+      "gap_end": "1.1880"
+    },
+    "finding": "train_loss falls while val_loss rises over epochs 40-60; train/val gap widens from 0.2083 to 1.1880.",
+    "reasoning": [
+      "computed epoch-mean train_loss and val_loss for all epochs with both defined",
+      "ran sliding window of 5 epochs -> found diverging slopes from epoch 40 onward",
+      "train slope = -1.6682e-02 (falling), val slope = +3.2401e-02 (rising) -> overfitting criterion met",
+      "checked run_config.yaml -> no weight decay or dropout configured (SOLVER.WEIGHT_DECAY = 0.0)",
+      "val mean at epoch 60 is 1.633x val mean at epoch 40 -> exceeds 1.02 threshold, run kept"
+    ],
+    "suggested_fix": "Add weight decay: SOLVER.WEIGHT_DECAY = 1e-4. Consider early stopping at epoch 40.",
+    "fix_status": "confirmed in repo (run_config.yaml:14)",
+    "source_report": "detect_c_overfit.py"
+  },
+  {
+    "id": "D1",
+    "type": "stalled_lr",
+    "detector": "D",
+    "severity": "medium",
+    "epoch_start": 80,
+    "epoch_end": 100,
+    "iteration_start": 3951,
+    "iteration_end": 5000,
+    "evidence": {
+      "lr_value": "6.2500e-05",
+      "lr_fraction_of_max": "0.0625",
+      "train_loss_change": "0.0009",
+      "val_loss_change": "0.0014"
+    },
+    "finding": "lr constant at 6.2500e-05 (6.25% of max) over epochs 80-100; train_loss barely moves (delta = 0.0009).",
+    "reasoning": [
+      "read lr column -> found constant value 6.2500e-05 from epoch 80 to epoch 100 (21 epochs)",
+      "checked run_config.yaml -> SOLVER.STEPS = [60, 80] with GAMMA = 0.5, so LR is stepped down and held flat",
+      "computed |last/first - 1| of epoch-mean train_loss over this window = 0.0009 < threshold 0.01",
+      "labelled stalled: LR is flat and loss is not meaningfully changing"
+    ],
+    "suggested_fix": "Switch to cosine annealing (SOLVER.LR_SCHEDULER_NAME = WarmupCosineLR) to avoid flat LR plateau.",
+    "fix_status": "confirmed in repo (run_config.yaml:9)",
+    "source_report": "detect_d_lr.py"
+  }
+]
