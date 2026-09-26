@@ -42,6 +42,15 @@ from edge_cases import (
     LogNoFiniteError,
 )
 
+from bob_runner import (
+    run_bob_onboarding,
+    BobCredentialError,
+    BobUnreachableError,
+    BobTaskError,
+    InvalidRepoError,
+    MalformedLogError,
+)
+
 # --------------------------------------------------------------------------- #
 # Configuration
 # --------------------------------------------------------------------------- #
@@ -989,15 +998,76 @@ def render_onboarding(intake: Intake) -> None:
     st.divider()
     st.subheader("📄 Onboarding Report")
 
+    # ---- Run with Bob ------------------------------------------------- #
+    import traceback as _traceback  # noqa: PLC0415 — localised import
+
+    with st.container(border=True):
+        st.markdown("**⚡ Run Bob Onboarding**")
+        repo_url = st.text_input(
+            "GitHub repository URL",
+            placeholder="https://github.com/owner/repo",
+            key="ob_repo_url",
+        )
+        if st.button("Run Bob", key="ob_run_bob_btn"):
+            if not repo_url.strip():
+                st.error("Please enter a repository URL before running Bob.")
+            else:
+                with st.spinner("Bob is analyzing the repository…"):
+                    try:
+                        report_str = run_bob_onboarding(repo_url.strip())
+                        st.session_state["ob_bob_report"] = report_str
+                        st.rerun()
+                    except BobCredentialError:
+                        st.error(
+                            "Bob API key not found. Add BOBSHELL_API_KEY to your "
+                            "environment variables (local) or Streamlit secrets (Cloud)."
+                        )
+                    except BobUnreachableError:
+                        st.error(
+                            "Bob Shell is not installed or not on PATH. Install it from "
+                            "the Bob portal and ensure the `bob` command is available."
+                        )
+                    except InvalidRepoError as exc:
+                        st.error(
+                            "Could not clone the repository. Check that the URL is correct "
+                            "and the repository is public."
+                            + (f"\n\n{exc}" if str(exc) else "")
+                        )
+                    except BobTaskError as exc:
+                        st.error(
+                            "Bob ran but did not produce the expected output files. "
+                            "This may mean the task timed out or Bob's response was "
+                            "incomplete. Try again."
+                        )
+                        if exc.stderr_tail:
+                            with st.expander("Bob output (last 20 lines)"):
+                                st.code(exc.stderr_tail)
+                    except Exception:  # noqa: BLE001
+                        st.error(
+                            "An unexpected error occurred. Please check your files and try again."
+                        )
+                        with st.expander("Details (for developer debugging)"):
+                            st.code(_traceback.format_exc())
+        if st.session_state.get("ob_bob_report"):
+            st.button("Run Bob again", key="ob_run_bob_again_btn",
+                      on_click=lambda: st.session_state.pop("ob_bob_report", None))
+
+    # ---- Report resolution -------------------------------------------- #
     report_bytes: bytes | None = None
     report_source = ""
 
+    # Bob result takes precedence over a manual upload.
+    bob_report: str | None = st.session_state.get("ob_bob_report")
+    if bob_report:
+        report_bytes = bob_report.encode("utf-8")
+        report_source = "Source: Bob"
+
     uploaded_report = st.file_uploader(
-        f"Upload {ONBOARDING_REPORT_NAME}",
+        f"Or upload {ONBOARDING_REPORT_NAME} manually",
         type=["md"],
         key="ob_report_upload",
     )
-    if uploaded_report:
+    if uploaded_report and not bob_report:
         report_bytes = uploaded_report.getvalue()
         report_source = f"Uploaded: `{uploaded_report.name}`"
 
@@ -1006,8 +1076,8 @@ def render_onboarding(intake: Intake) -> None:
         render_markdown_report("🧭 ONBOARDING_REPORT.md", report_bytes)
     else:
         st.info(
-            "No report yet. Run Bob's onboarding workflow, then upload "
-            f"`{ONBOARDING_REPORT_NAME}` here."
+            "No report yet. Enter a repository URL above and click **Run Bob**, or upload "
+            f"`{ONBOARDING_REPORT_NAME}` manually."
         )
 
 
