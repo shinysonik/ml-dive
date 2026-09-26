@@ -12,4 +12,6 @@
 # Create one at https://bob.ibm.com → API keys → New key → Scope: General.
 # On Streamlit Cloud this key is not needed: the Bob button is hidden because
 # Bob Shell cannot be installed in the Cloud environment.
+# Either variable name works — bob_runner.py checks both.
 BOBSHELL_API_KEY = "your_api_key_here_DO_NOT_COMMIT"
+# BOB_API_KEY = "your_api_key_here_DO_NOT_COMMIT"
