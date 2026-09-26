@@ -333,6 +333,11 @@ def load_diagnosis(name: str, size: int, raw: bytes) -> list[dict] | None:
             evidence = {}
 
         finding = raw_item.get("finding") or ""
+        raw_reasoning = raw_item.get("reasoning")
+        if isinstance(raw_reasoning, list):
+            reasoning = [str(s) for s in raw_reasoning if s]
+        else:
+            reasoning = []
         fix = raw_item.get("suggested_fix")
         if fix is None or fix == "null":
             fix = ""
@@ -366,6 +371,7 @@ def load_diagnosis(name: str, size: int, raw: bytes) -> list[dict] | None:
             "iteration_end": iter_end,
             "evidence": evidence,
             "finding": str(finding),
+            "reasoning": reasoning,
             "suggested_fix": str(fix),
             "fix_status": str(fix_status),
             "source_report": str(source_report),
@@ -621,6 +627,13 @@ def render_diagnosis_cards(
                 st.caption(range_text)
             if z.get("finding"):
                 st.markdown(z["finding"])
+
+            # Reasoning block — ordered inference steps from Bob
+            reasoning = z.get("reasoning") or []
+            if reasoning:
+                with st.expander("🔍 Reasoning", expanded=False):
+                    for step in reasoning:
+                        st.markdown(f"- {step}")
 
             # Evidence block — key-value pairs
             evidence = z.get("evidence") or {}

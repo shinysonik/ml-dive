@@ -14,6 +14,7 @@ One JSON list. Every item has these keys. No additional keys unless listed under
 | iteration_end | integer | |
 | evidence | object | flat, numbers and strings only, no nesting. Keys below. |
 | finding | string | one to two sentences, plain language |
+| reasoning | list of strings | ordered steps Bob took to reach the finding, e.g. ["loss non-finite from iteration 4200", "coincides with LR warmup end in run_config.yaml", "ruled out OOM: no CUDA errors in same window"]. Empty list if no reasoning was recorded. |
 | suggested_fix | string | the change, grounded or not |
 | fix_status | string, one of "confirmed in repo (file:line)" \| "hypothesis — verify in repo" | mandatory, never omitted |
 | source_report | string | path to the analysis/report_*.md this came from, or "reference_detectors.py" for the answer key |

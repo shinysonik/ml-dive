@@ -59,7 +59,23 @@ Write ONBOARDING_REPORT.md with sections in this exact order:
 7. Weights (Q2 answer — model zoo, cache location, loading)
 8. Inference (Q3 answer — code block with status line)
 9. Training (Q4 answer — command with status line)
-10. Unclear (the list from Q5)
-11. Method (files opened, greps run, nothing executed)
+10. Reasoning (see below)
+11. Unclear (the list from Q5)
+12. Method (files opened, greps run, nothing executed)
 
 Every claim in sections 6–9 cites path:line. Every code block carries a status line. No code block is labelled "executed".
+
+## Reasoning section
+
+Before the Unclear section, write a `## Reasoning` section. List every major inference step you took to reach each finding in sections 6–9, in the order you took them. Each step is one line in this format:
+
+```
+read <path> → <what you found> → <conclusion or next step>
+```
+
+Example steps:
+- `read configs/defaults.yaml → saw DATASETS.ROOT = "./data" → dataset root is relative, not an env var`
+- `grep model_zoo → found zoo.py:42 → model getter is get_model(name, pretrained=True)`
+- `read setup.py → torch>=1.8 listed → confirmed hard dependency`
+
+Do not summarise. List each step separately. The goal is for a judge to follow your chain of thought from raw file reads to stated conclusions.

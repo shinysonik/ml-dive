@@ -41,7 +41,7 @@ Report every lr change point as (iteration, epoch, lr_before, lr_after) using re
 
 ## Step 3 — Write analysis/anomalies.json
 
-Create the directory `analysis/` if it does not exist. Write `analysis/anomalies.json` as a JSON list. Every item must have exactly these 13 keys and no others:
+Create the directory `analysis/` if it does not exist. Write `analysis/anomalies.json` as a JSON list. Every item must have exactly these 14 keys and no others:
 
 | key | value |
 |---|---|
@@ -55,6 +55,7 @@ Create the directory `analysis/` if it does not exist. Write `analysis/anomalies
 | iteration_end | integer |
 | evidence | flat object, numbers and strings only, no nesting — use only the keys below |
 | finding | one to two sentences in plain language describing what was found |
+| reasoning | JSON array of short strings — the ordered steps you took to reach the finding. Each string is one inference step, e.g. "loss non-finite from iteration 4200", "coincides with LR warmup end in run_config.yaml", "ruled out OOM: no CUDA errors in same window". Minimum 2 steps per anomaly. |
 | suggested_fix | the most impactful single config change, grounded in run_config.yaml values where possible |
 | fix_status | "confirmed in repo (file:line)" only if you opened the file; otherwise "hypothesis — verify in repo" |
 | source_report | "detect_a_nonfinite.py", "detect_b_spikes.py", "detect_c_overfit.py", or "detect_d_lr.py" |
@@ -65,7 +66,7 @@ Evidence keys by detector (use only these, do not invent others):
 - C: train_slope, val_slope, gap_start, gap_end
 - D: lr_value, lr_fraction_of_max, train_loss_change, val_loss_change
 
-Before writing, verify: every item has all 13 keys. epoch_start, epoch_end, iteration_start, iteration_end are integers, not null. If a detector did not fire, it contributes no items.
+Before writing, verify: every item has all 14 keys. epoch_start, epoch_end, iteration_start, iteration_end are integers, not null. If a detector did not fire, it contributes no items.
 
 ## Step 4 — Write TRIAGE_REPORT.md
 
@@ -74,7 +75,7 @@ Write `TRIAGE_REPORT.md` in the workspace root with sections in this exact order
 1. Executive summary: one paragraph, at most 120 words, naming every anomaly with epoch range and severity.
 2. Data profile: the 5 key facts from Step 1 (row count, iteration range, epoch range, finite loss counts, last finite iteration).
 3. Anomaly table: one row per anomaly, columns: id, type, detector, epoch range, iteration range, severity. Sort by severity (high first, then medium, then low).
-4. Per anomaly (one subsection each): evidence values, suggested fix, verification (one line — what metric, what direction, by which epoch).
+4. Per anomaly (one subsection each): evidence values, suggested fix, verification (one line — what metric, what direction, by which epoch). After the evidence and before the verification line, add a `### Reasoning` sub-section listing the same ordered steps from the `reasoning` field in anomalies.json — one bullet per step, exactly as written in the JSON array.
 5. Relations: pairs of anomaly ids that overlap or are adjacent in epochs, each labelled "hypothesis".
 6. What to run next: one concrete config change or shell command for the highest-severity anomaly.
 7. Method: scripts written and run, nothing executed that is not listed here.
