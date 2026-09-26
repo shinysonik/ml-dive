@@ -96,7 +96,7 @@ ML-Dive's "Run with Bob" button calls Bob Shell as a subprocess and requires a B
 2. Set it in your terminal before running the app:
 
 ```powershell
-$env:BOBSHELL_API_KEY = "your-api-key-here"
+$env:BOBSHELL_API_KEY = "your_api_key_here_DO_NOT_COMMIT"
 streamlit run ml_dive.py
 ```
 

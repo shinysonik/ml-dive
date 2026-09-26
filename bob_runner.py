@@ -98,10 +98,9 @@ _PROMPT_FILENAME = "bob_prompt.txt"
 def _run_bob_in_dir(workspace: Path, prompt: str, timeout_seconds: int) -> None:
     """Run Bob Shell inside *workspace* using *prompt* as the task.
 
-    The prompt is written to a file inside the workspace and fed to Bob via
-    stdin redirect (``bob run ... < prompt_file``).  This avoids Windows
-    command-line length limits that occur when passing large prompts as
-    positional arguments.
+    Invokes ``bob --auth-method api-key -p "<prompt>" --yolo --accept-license``
+    as a subprocess.  The prompt is passed via the ``input=`` parameter of
+    ``subprocess.run`` to avoid Windows command-line length limits.
 
     Args:
         workspace: Absolute path to the temp workspace directory.
@@ -115,23 +114,21 @@ def _run_bob_in_dir(workspace: Path, prompt: str, timeout_seconds: int) -> None:
     """
     api_key = get_bob_api_key()
 
-    prompt_file = workspace / _PROMPT_FILENAME
-    prompt_file.write_text(prompt, encoding="utf-8")
-
     env = os.environ.copy()
-    env["BOB_API_KEY"] = api_key
+    # Bob Shell reads BOBSHELL_API_KEY for API key auth (documented env var name).
+    env["BOBSHELL_API_KEY"] = api_key
 
-    # Use shell=True so the < stdin redirect is handled by the shell.
-    # Quoting workspace and prompt_file handles spaces in temp paths.
-    cmd = (
-        f'{_BOB_CMD} run --trust --accept-license -w "{workspace}"'
-        f' < "{prompt_file}"'
-    )
+    cmd = [
+        _BOB_CMD,
+        "--auth-method", "api-key",
+        "-p", prompt,
+        "--yolo",
+        "--accept-license",
+    ]
 
     try:
         result = subprocess.run(
             cmd,
-            shell=True,
             cwd=str(workspace),
             env=env,
             capture_output=True,
