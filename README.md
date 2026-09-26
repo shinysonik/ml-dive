@@ -49,7 +49,9 @@ ml-dive/
 ├── docs/              # anomalies schema, ground truth
 └── README.md
 ```
-Data sources and compliance notes: see docs/DATA_SOURCES.md
+
+Data sources and compliance notes: see `docs/DATA_SOURCES.md`
+
 ## Run locally
 
 ```powershell
@@ -59,63 +61,60 @@ pip install -r requirements.txt
 streamlit run ml_dive.py
 ```
 
-For **CV Repository Onboarding**, drop `demo_repo.zip` into the same
-Structural intake box — it is a 7-file toy project (`Tiny-Detectron`) built
-for this demo, so a fresh clone can exercise that mode too.
+For **CV Repository Onboarding**, drop `demo_repo.zip` into the same Structural intake box — it is a 7-file toy project (`Tiny-Detectron`) built for this demo, so a fresh clone can exercise that mode too.
 
-For **ML Training Log Debugger**, drop `logs/train_log.csv` +
-`logs/detectron2_run.log` into the **Structural intake** box, and attach
-`logs/reference_anomalies.json` as the diagnosis file.
+For **ML Training Log Debugger**, drop `logs/train_log.csv` + `logs/detectron2_run.log` into the **Structural intake** box, and attach `logs/reference_anomalies.json` as the diagnosis file.
 
-> **Note on demo data:** three files ship with the repo on purpose —
-> `logs/train_log.csv`, `logs/detectron2_run.log` and
-> `logs/reference_anomalies.json` — so a fresh clone can be demoed without
-> regenerating anything. (`.gitignore` still blocks everything else matching
-> `logs/*.log|*.csv|*.json`.)
+> **Note on demo data:** three files ship with the repo on purpose — `logs/train_log.csv`, `logs/detectron2_run.log` and `logs/reference_anomalies.json` — so a fresh clone can be demoed without regenerating anything. (`.gitignore` still blocks everything else matching `logs/*.log|*.csv|*.json`.)
 >
 > To rebuild them anyway:
 >
-> - `python logs/generate_logs.py` → `logs/train_log.csv`, `logs/run_config.yaml`,
->   `docs/ground_truth_debugging.json`
+> - `python logs/generate_logs.py` → `logs/train_log.csv`, `logs/run_config.yaml`, `docs/ground_truth_debugging.json`
 > - `python logs/reference_detectors.py --json` → `logs/reference_anomalies.json`
 > - `logs/detectron2_run.log` — hand-maintained, **no script produces it**
 >
-> None of this is needed at runtime: the app is *upload-only* and never reads
-> from disk.
+> None of this is needed at runtime: the app is *upload-only* and never reads from disk.
 
 ## Deploy (Streamlit Community Cloud)
 
 1. Push this repository to GitHub.
-2. Create an app at [share.streamlit.io](https://share.streamlit.io) pointing at
-   this repo and branch.
-3. **Set the file path to `ml_dive.py`.** Streamlit's default is
-   `streamlit_app.py`, which this project does not use — leaving the default
-   makes the deploy "succeed" with no app to show.
+2. Create an app at [share.streamlit.io](https://share.streamlit.io) pointing at this repo and branch.
+3. **Set the file path to `ml_dive.py`.** Streamlit's default is `streamlit_app.py`, which this project does not use — leaving the default makes the deploy "succeed" with no app to show.
 
-`requirements.txt` must list every package imported directly by `ml_dive.py`
-(`streamlit`, `pandas`, `numpy`, `altair`). Cloud installs from that file
-alone, so an undeclared import breaks the deploy rather than the local run.
+`requirements.txt` must list every package imported directly by `ml_dive.py` (`streamlit`, `pandas`, `numpy`, `altair`). Cloud installs from that file alone, so an undeclared import breaks the deploy rather than the local run.
 
 ## Tests
 
-`tests/` boots the real app headlessly (Streamlit's `AppTest`), uploads the
-actual demo files, and asserts specific behaviour. **Run it before committing:**
+`tests/` boots the real app headlessly (Streamlit's `AppTest`), uploads the actual demo files, and asserts specific behaviour. **Run it before committing:**
 
 ```powershell
 venv\Scripts\python tests\run_all.py
 ```
 
-133 checks across five scripts: log ↔ anomaly cross-referencing by position,
-the non-finite audit total, text-log/CSV agreement, the diagnosis upload flow,
-every `fix_status` badge state, and every fix listed above. Exit code is `0`
-only when all five pass.
+133 checks across five scripts: log ↔ anomaly cross-referencing by position, the non-finite audit total, text-log/CSV agreement, the diagnosis upload flow, every `fix_status` badge state, and every fix listed above. Exit code is `0` only when all five pass.
+
+## Security
+
+This repository uses security files provided by the IBM Hackathon template:
+
+- **`.gitignore`** — prevents committing credentials and live session files
+- **`.bobignore`** — prevents AI assistants from logging credentials
+- **`.env.example`** — template for environment variables
+- **`SECURITY.MD`** — detailed security guidelines
+
+Before every commit, verify that no credentials are staged:
+
+```powershell
+git diff --staged
+git check-ignore -v .env
+```
 
 ## Team
 
-- **ML / CV / IBM Bob integration** — [@shinysonik](https://github.com/shinysonik)
-- **Frontend / Full-stack** — *looking for a teammate*
-- **Pitch / Video** — *looking for a teammate*
+- **ML / CV / prompt engineering** — [@shinysonik](https://github.com/shinysonik)
+- **Frontend / Full-stack** — [@Crysnow](https://github.com/Crysnow)
+- **Backend / IBM Bob integration** — [@abdullahxyz85](https://github.com/abdullahxyz85)
 
 ## License
 
-MIT 
+MIT
