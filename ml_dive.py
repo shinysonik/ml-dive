@@ -27,6 +27,21 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
+from edge_cases import (
+    UserFacingError,
+    handle as handle_user_error,
+    # The remaining exception classes are imported for the upcoming Bob
+    # integration (bob_runner.py). Kept here so that when validators start
+    # raising them, the wiring is already in place.
+    InvalidRepoUrlError,
+    RepoNotFoundError,
+    RepoPrivateError,
+    LogEmptyError,
+    LogMalformedError,
+    LogTooLargeError,
+    LogNoFiniteError,
+)
+
 # --------------------------------------------------------------------------- #
 # Configuration
 # --------------------------------------------------------------------------- #
@@ -1152,8 +1167,22 @@ def render_tables_panel(
                 if uploaded_zones:
                     zones = uploaded_zones
                     diag_source = f"Uploaded: `{diag_file.name}`"
-            except Exception:
-                pass
+            except UserFacingError as exc:
+                # A validator inside load_diagnosis raised a known, user-safe
+                # error — render it through the standard handler so the user
+                # gets the headline + explanation + help expander.
+                handle_user_error(exc)
+            except Exception as exc:
+                # A malformed-JSON case already returns None from load_diagnosis
+                # and is reported by the `zones is None` branch below. Reaching
+                # this branch means something *else* went wrong (an unexpected
+                # bug in normalization) — swallowing it silently would hide a
+                # real defect from the person who just uploaded a file.
+                st.error(
+                    f"🚫 Unexpected error while reading `{diag_file.name}`."
+                )
+                with st.expander("Technical details"):
+                    st.code(f"{exc.__class__.__name__}: {exc}", language="text")
             if zones is None:
                 st.warning(
                     "Diagnosis file could not be parsed (expected a JSON list of anomaly objects "
@@ -1181,7 +1210,23 @@ def render_tables_panel(
     chosen = pick_by_name(intake.data, pick)
     if chosen is None:
         return
-    df = load_table(pick, chosen.size, chosen.getvalue())
+    try:
+        df = load_table(pick, chosen.size, chosen.getvalue())
+    except UserFacingError as exc:
+        handle_user_error(exc)
+        return
+    except Exception as exc:
+        st.error(f"🚫 Couldn't parse `{pick}` as a table.")
+        with st.expander("Technical details"):
+            st.code(f"{exc.__class__.__name__}: {exc}", language="text")
+        return
+    if df.empty:
+        st.warning(
+            f"📥 `{pick}` has a header but no data rows. "
+            "This usually means the file is not a real CSV, or the training "
+            "run produced no output. Check the file and re-export if needed."
+        )
+        return
 
     st.caption(f"{df.shape[0]:,} rows × {df.shape[1]} columns (first 50k rows parsed)")
     st.dataframe(df.head(200), hide_index=True)
@@ -1279,6 +1324,8 @@ def render_debugger(intake: Intake) -> None:
             shared_zones = load_diagnosis(
                 diag_upload.name, diag_upload.size, diag_upload.getvalue()
             )
+        except UserFacingError:
+            shared_zones = None
         except Exception:
             shared_zones = None
 
@@ -1361,14 +1408,25 @@ def main() -> None:
     # Upload-only intake: no filesystem paths are accepted anywhere in the app.
     intake = render_upload_section()
 
-    if intake is None:
-        render_empty_state(mode)
-    else:
-        render_sidebar_status(intake)
-        if mode == MODE_ONBOARDING:
-            render_onboarding(intake)
+    try:
+        if intake is None:
+            render_empty_state(mode)
         else:
-            render_debugger(intake)
+            render_sidebar_status(intake)
+            if mode == MODE_ONBOARDING:
+                render_onboarding(intake)
+            else:
+                render_debugger(intake)
+    except UserFacingError as exc:
+        # Anything raised as a UserFacingError is safe to show: headline,
+        # explanation, and a collapsible "How to fix this" block with links.
+        handle_user_error(exc)
+    except Exception as exc:
+        # Last resort: anything not already handled closer to its source
+        # (a chart that can't render a degenerate frame, an unanticipated
+        # library error, ...) surfaces here as a readable message instead of
+        # Streamlit's default raw traceback.
+        handle_user_error(exc)
 
 
 if __name__ == "__main__":
