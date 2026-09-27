@@ -44,6 +44,7 @@ from edge_cases import (
 
 from bob_runner import (
     run_bob_onboarding,
+    run_bob_triage,
     BobCredentialError,
     BobUnreachableError,
     BobTaskError,
@@ -1366,6 +1367,74 @@ def render_debugger(intake: Intake) -> None:
     render_intake_metrics(intake)
 
     # ------------------------------------------------------------------ #
+    # "Run with Bob" — one-click triage without manual file uploads.
+    # ------------------------------------------------------------------ #
+    with st.container(border=True):
+        st.markdown("⚡ **Run Bob Triage**")
+
+        # Resolve the CSV log from the first data file in the intake.
+        log_file = intake.data[0] if intake.data else None
+        if log_file is None:
+            st.info(
+                "Upload a training CSV in the **Structural intake** box above "
+                "to enable one-click Bob triage."
+            )
+        else:
+            # Resolve an optional YAML config from the code intake.
+            config_file = next(
+                (f for f in (intake.code or []) if f.name.lower().endswith((".yaml", ".yml"))),
+                None,
+            )
+            if config_file is None:
+                st.warning(
+                    "No YAML config file found in the intake — "
+                    "Bob will run without it (config is optional)."
+                )
+
+            if st.button("Run Bob", key="dbg_run_bob_btn"):
+                log_bytes = log_file.getvalue()
+                config_bytes = config_file.getvalue() if config_file is not None else b""
+                try:
+                    with st.spinner("Bob is analyzing the training log…"):
+                        triage_md, anomalies = run_bob_triage(log_bytes, config_bytes)
+                    st.session_state["dbg_bob_triage"] = triage_md
+                    st.session_state["dbg_bob_zones"] = anomalies
+                    st.rerun()
+                except BobCredentialError:
+                    st.error(
+                        "Bob API key not found. Add BOBSHELL_API_KEY to your "
+                        "environment variables (local) or Streamlit secrets (Cloud)."
+                    )
+                    st.button("Run Bob again", key="dbg_bob_retry_cred")
+                except BobUnreachableError:
+                    st.error(
+                        "Bob Shell is not installed or not on PATH. "
+                        "Install it from the Bob portal and ensure the `bob` command is available."
+                    )
+                    st.button("Run Bob again", key="dbg_bob_retry_reach")
+                except MalformedLogError:
+                    st.error(
+                        "The training log file is empty or missing the `iteration` column. "
+                        "Check that it is a valid CSV with at least: iteration, train_loss, val_loss, lr."
+                    )
+                    st.button("Run Bob again", key="dbg_bob_retry_log")
+                except BobTaskError as exc:
+                    st.error(
+                        "Bob ran but did not produce the expected output files. "
+                        "This may mean the task timed out or Bob's response was incomplete. Try again."
+                    )
+                    if exc.stderr_tail:
+                        with st.expander("Bob output (last 20 lines)"):
+                            st.code(exc.stderr_tail, language="text")
+                    st.button("Run Bob again", key="dbg_bob_retry_task")
+                except Exception as exc:  # noqa: BLE001
+                    import traceback
+                    st.error("An unexpected error occurred. Please check your files and try again.")
+                    with st.expander("Details"):
+                        st.code(traceback.format_exc(), language="text")
+                    st.button("Run Bob again", key="dbg_bob_retry_generic")
+
+    # ------------------------------------------------------------------ #
     # Pre-compute shared data BEFORE the tabs open so both panels can
     # reference each other's findings.
     #
@@ -1398,6 +1467,9 @@ def render_debugger(intake: Intake) -> None:
             shared_zones = None
         except Exception:
             shared_zones = None
+    # Fall back to Bob's zones if no manual upload is present.
+    if shared_zones is None:
+        shared_zones = st.session_state.get("dbg_bob_zones")
 
     # Auto-scan the first/only log for cross-ref (user can change selection
     # inside the log tab — that doesn't break anything, it just re-scans).
@@ -1431,8 +1503,20 @@ def render_debugger(intake: Intake) -> None:
 
 
 def _render_triage_report_tab() -> None:
-    """Dedicated tab for TRIAGE_REPORT.md — upload-only, never reads disk."""
+    """Dedicated tab for TRIAGE_REPORT.md — Bob session state or manual upload."""
     st.subheader("📋 Triage Report")
+
+    bob_triage: str | None = st.session_state.get("dbg_bob_triage")
+
+    if bob_triage is not None:
+        st.caption("Source: Bob")
+        render_markdown_report("🩺 TRIAGE_REPORT.md", bob_triage.encode("utf-8"))
+        st.file_uploader(
+            f"Or upload a different {TRIAGE_REPORT_NAME}",
+            type=["md"],
+            key="dbg_triage_upload",
+        )
+        return
 
     report_bytes: bytes | None = None
     report_source = ""
