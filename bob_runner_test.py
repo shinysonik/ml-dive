@@ -165,10 +165,16 @@ except Exception as exc:  # noqa: BLE001
     fail("MalformedLogError on binary garbage", f"wrong exception: {type(exc).__name__}: {exc}")
 
 # 1.9 Credential check fires before any subprocess (when key is missing)
+# Patch streamlit.secrets.get so a local .streamlit/secrets.toml does not
+# supply the key during this isolated check.
+import unittest.mock as _mock
+
 saved = os.environ.pop("BOB_API_KEY", None)
 saved_legacy = os.environ.pop("BOBSHELL_API_KEY", None)
 try:
-    run_bob_triage(b"iteration,train_loss\n1,0.5\n", b"")
+    import streamlit as _st
+    with _mock.patch.object(_st.secrets, "get", return_value=None):
+        run_bob_triage(b"iteration,train_loss\n1,0.5\n", b"")
     fail("BobCredentialError when no key in env", "no exception raised")
 except BobCredentialError:
     ok("BobCredentialError raised before subprocess when key absent")
