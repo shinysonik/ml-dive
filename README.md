@@ -137,9 +137,9 @@ only when all five pass.
 
 ## Team
 
-- **ML / CV / IBM Bob integration** — [@shinysonik](https://github.com/shinysonik)
-- **Frontend / Full-stack** — *looking for a teammate*
-- **Pitch / Video** — *looking for a teammate*
+- **ML/CV and Team Lead** — Sofia Shevelo : [@shinysonik](https://github.com/shinysonik)
+- **Frontend App and Video** — Aviral Gupta : [@arxturius](https://github.com/Crysnow)
+- **IBM BOB Integration** — Abdullah Jameel : [@abdullahxyz85](https://github.com/abdullahxyz85)
 
 ## License
 
